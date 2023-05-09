@@ -8,7 +8,7 @@ type Props = {};
 
 function ActionBar() {
   return (
-    <div className="bg-gray-300 h-2/5 w-full p-4 flex flex-row gap-4">
+    <div className="bg-gray-300 h-2/5 w-full p-4 flex flex-row gap-4 border-t-4 border-gray-800">
       <div className="w-2/5">
         <h2 className="text-3xl">Ações</h2>
         <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
