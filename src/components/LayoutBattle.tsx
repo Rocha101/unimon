@@ -11,7 +11,7 @@ type Props = {
 export default function Layout({ children, backgroundImg }: Props) {
   return (
     <main
-      className={`flex min-h-screen flex-col items-center justify-center ${savior.className} select-none bg-black`}
+      className={`flex min-h-screen flex-col items-center justify-end ${savior.className} select-none bg-black`}
       style={{
         backgroundImage: `url(${backgroundImg})`,
         backgroundSize: "cover",
