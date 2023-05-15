@@ -13,7 +13,7 @@ function MenuBattle() {
     <div className="bg-black h-full w-full p-4 flex flex-col justify-center align-middle">
       <div
         className="
-        bg-gray-300
+        bg-gray-300 text-black w-3/5
       "
       >
         <h1>
