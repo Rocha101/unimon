@@ -8,9 +8,9 @@ export default function ItemsAcoes({
   key: string;
 }) {
   return (
-    <button className="text-xl px-2 py-1 bg-gray-400 hover:bg-gray-500 rounded-lg flex flex-row gap-3">
+    <button className="text-md px-2 py-1 bg-gray-400 cursor-default rounded-lg flex flex-row gap-3">
       {icon}
-      <span className="truncate flex justify-between items-center w-full gap-6">
+      <span className="truncate flex justify-between items-center gap-6">
         {children}
       </span>
     </button>

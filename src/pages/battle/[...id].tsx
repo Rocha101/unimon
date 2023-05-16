@@ -3,195 +3,179 @@ import BattleField from "@/components/BattleField";
 import ItemsAcoes from "@/components/ItemsAcoes";
 import LayoutBattle from "@/components/LayoutBattle";
 import Status from "@/components/Status";
-import React from "react";
+import React, { use, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { PokemonClient } from "pokenode-ts";
 import { useRouter } from "next/router";
-
-function MenuBattle() {
-  return (
-    <div className="bg-black h-full w-full p-4 flex flex-col justify-center align-middle">
-      <div
-        className="
-        bg-gray-300 text-black w-3/5
-      "
-      >
-        <h1>
-          {} vs {}
-        </h1>
-        <h2>{} ganhou!</h2>
-        <div>
-          <p>Deseja Recomeçar ou Sair?</p>
-        </div>
-        <div>
-          <button>Recomeçar</button>
-          <button onClick={() => window.history.back()}>Sair</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ActionBar({
-  secondplayer,
-  vida,
-  forca,
-}: {
-  secondplayer?: boolean;
-  vida: number;
-  forca: number;
-}) {
-  return (
-    <div className="bg-gray-300 h-2/5 w-full p-4 flex flex-row gap-4 border-t-4 border-gray-800">
-      <div className="w-2/5">
-        <h2 className="text-3xl">Ações</h2>
-        <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <ItemsAcoes icon="👊" key={secondplayer ? "SetaEsquerda" : "KeyA"}>
-            <div>Atacar</div>{" "}
-            <div className="text-gray-500 hidden md:block">
-              {secondplayer ? "⬅️" : "Tecla A"}
-            </div>
-          </ItemsAcoes>
-          <ItemsAcoes icon="🛡️" key="d">
-            Defender{" "}
-            <span className="text-gray-500 hidden md:block">
-              {secondplayer ? "⬇️" : "Tecla D"}
-            </span>
-          </ItemsAcoes>
-          <ItemsAcoes icon="🔥" key="s">
-            Especial{" "}
-            <span className="text-gray-500 hidden md:block">
-              {secondplayer ? "➡️" : "Tecla S"}
-            </span>
-          </ItemsAcoes>
-          <ItemsAcoes icon="🏃" key="f">
-            Fugir{" "}
-            <span className="text-gray-500 hidden md:block">
-              {secondplayer ? "⬆️" : "Tecla F"}
-            </span>
-          </ItemsAcoes>
-        </ul>
-      </div>
-      <div className="w-3/5">
-        <Status label="Vida" color="bg-red-500" pct={vida} />
-        <Status label="Força" color="bg-blue-500" pct={forca} />
-      </div>
-    </div>
-  );
-}
+import ActionBar from "@/components/ActionBar";
 
 export default function Battle({}) {
   const router = useRouter();
   const { slug, id } = router.query;
 
-  const [attacker, setAttacker] = React.useState<
-    | {
-        pokeName: string;
-        spriteFront: string | null;
-        spriteBack: string | null;
-      }
-    | undefined
-  >();
+  const [attacker, setAttacker] = useState<{
+    pokeName: string;
+    spriteFront: string | null;
+    spriteBack: string | null;
+  }>();
+  const [defender, setDefender] = useState<{
+    pokeName: string;
+    spriteFront: string | null;
+    spriteBack: string | null;
+  }>();
 
-  const [defender, setDefender] = React.useState<
-    | {
-        pokeName: string;
-        spriteFront: string | null;
-        spriteBack: string | null;
-      }
-    | undefined
-  >();
+  const [player1, setPlayer1] = useState({
+    name: attacker?.pokeName,
+    life: 100,
+    force: 100,
+    winner: false,
+  });
 
-  (async () => {
-    if (!id) return;
-    const api = new PokemonClient();
+  const [player2, setPlayer2] = useState({
+    name: defender?.pokeName,
+    life: 100,
+    force: 100,
+    winner: false,
+  });
 
-    await api
-      .getPokemonByName(id[0])
-      .then((data) =>
+  useEffect(() => {
+    const fetchPokemonData = async () => {
+      if (!id) return;
+      const api = new PokemonClient();
+
+      try {
+        const [attackerData, defenderData] = await Promise.all([
+          api.getPokemonByName(id[0]),
+          api.getPokemonByName(id[1]),
+        ]);
+
         setAttacker({
-          pokeName: data.name,
-          spriteBack: data.sprites.back_default,
-          spriteFront: data.sprites.front_default,
-        })
-      )
-      .catch((error) => console.error(error));
+          pokeName: attackerData.name,
+          spriteBack: attackerData.sprites.back_default,
+          spriteFront: attackerData.sprites.front_default,
+        });
 
-    await api
-      .getPokemonByName(id[1])
-      .then((data) =>
         setDefender({
-          pokeName: data.name,
-          spriteFront: data.sprites.front_default,
-          spriteBack: data.sprites.back_default,
-        })
-      )
-      .catch((error) => console.error(error));
-  })();
+          pokeName: defenderData.name,
+          spriteFront: defenderData.sprites.front_default,
+          spriteBack: defenderData.sprites.back_default,
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
-  const [player1, setPlayer1] = React.useState({
-    life: 100,
-    force: 100,
-  });
+    fetchPokemonData();
+  }, [id]);
 
-  const [player2, setPlayer2] = React.useState({
-    life: 100,
-    force: 100,
-  });
+  function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    const { key } = event;
+    const updatedPlayer1 = { ...player1 };
+    const updatedPlayer2 = { ...player2 };
 
-  const [menu, setMenu] = React.useState(false);
-
-  function handleKeyDown(
-    event: { key: string },
-    player1: { life: number },
-    player2: { life: number }
-  ) {
-    if (event.key === "a") {
-      player2.life = player2.life - 10;
+    switch (key) {
+      case "a":
+        if (updatedPlayer1.force <= 0) return;
+        if (updatedPlayer2.life <= 0) return;
+        updatedPlayer2.life -= 10;
+        break;
+      case "d":
+        if (updatedPlayer2.force <= 0) return;
+        if (updatedPlayer1.life <= 0) return;
+        updatedPlayer1.life += 10;
+        break;
+      case "s":
+        if (updatedPlayer1.force <= 0) return;
+        if (updatedPlayer2.life <= 0) return;
+        updatedPlayer2.life -= 20;
+        break;
+      case "ArrowUp":
+        alert("Player 2 desistiu!");
+        window.history.back();
+        break;
+      case "KeyF":
+        alert("Player 1 desistiu!");
+        window.history.back();
+        break;
+      case "ArrowLeft":
+        if (updatedPlayer2.force <= 0) return;
+        if (updatedPlayer1.life <= 0) return;
+        updatedPlayer1.life -= 10;
+        break;
+      case "ArrowDown":
+        if (updatedPlayer1.force <= 0) return;
+        if (updatedPlayer2.life <= 0) return;
+        updatedPlayer2.life += 10;
+        break;
+      case "ArrowRight":
+        if (updatedPlayer2.force <= 0) return;
+        if (updatedPlayer1.life <= 0) return;
+        updatedPlayer1.life -= 20;
+        break;
+      default:
+        break;
     }
-    if (event.key === "d") {
-      player1.life = player1.life + 10;
-    }
-    if (event.key === "s") {
-      player2.life = player2.life - 20;
-    }
-    if (player2.life <= 0) {
+
+    if (updatedPlayer2.life <= 0) {
       alert("Player 1 venceu!");
+      player1.winner = true;
       setMenu(true);
     }
-    if (player1.life <= 0) {
+    if (updatedPlayer1.life <= 0) {
       alert("Player 2 venceu!");
+      player2.winner = true;
       setMenu(true);
     }
-    if (event.key === "ArrowUp") {
-      alert("Player 2 desistiu!");
-      window.history.back();
-    }
-    if (event.key === "KeyF") {
-      alert("Player 1 desistiu!");
-      window.history.back();
-    }
-    if (event.key === "ArrowLeft") {
-      player1.life = player1.life - 10;
-    }
-    if (event.key === "ArrowDown") {
-      player2.life = player2.life + 10;
-    }
-    if (event.key === "ArrowRight") {
-      player1.life = player1.life - 20;
-    }
+
+    setPlayer1(updatedPlayer1);
+    setPlayer2(updatedPlayer2);
   }
+  useEffect(() => {
+    if (player1.winner || player2.winner) {
+      setMenu(true);
+    }
+  }, [player1, player2]);
 
-  const [players, setPlayers] = React.useState([player1, player2]);
+  const handleBack = () => {
+    router.back();
+  };
 
-  if (menu) return <MenuBattle />;
+  const handleRestart = () => {
+    router.reload();
+  };
 
+  const [menu, setMenu] = useState(false);
+  if (menu)
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-black text-center">
+        <div className="bg-gray-300 p-4 rounded-lg flex flex-col justify-between gap-4">
+          <h1 className="text-3xl text-black">MENU</h1>
+          <h2 className="text-xl text-black">
+            {player1.winner ? "Player 1" : "Player 2"} venceu a batalha!
+          </h2>
+          <div className="flex gap-4 justify-between">
+            <button
+              className="bg-blue-500 px-4 py-2 rounded-lg text-white font-medium w-full"
+              onClick={handleBack}
+            >
+              Voltar
+            </button>
+            <button
+              className="bg-blue-500 px-4 py-2 rounded-lg text-white font-medium  w-full"
+              onClick={handleRestart}
+            >
+              Recomeçar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   return (
     <div
       tabIndex={0}
       className="flex flex-row items-center justify-center w-full h-screen bg-black"
       onKeyDown={(event) => {
-        handleKeyDown(event, player1, player2);
+        handleKeyDown(event);
       }}
     >
       <LayoutBattle>
@@ -215,8 +199,8 @@ export default function Battle({}) {
       </LayoutBattle>
       <div
         className="
-      w-2 bg-blue-900 h-full
-      "
+    w-2 bg-blue-900 h-full
+    "
       ></div>
       <LayoutBattle secondplayer>
         <BattleField

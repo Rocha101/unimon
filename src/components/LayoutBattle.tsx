@@ -1,7 +1,4 @@
 import React, { useEffect } from "react";
-import localFont from "next/font/local";
-
-const savior = localFont({ src: "../../public/Savior4.ttf" });
 
 type Props = {
   children: React.ReactNode;
@@ -19,11 +16,11 @@ export default function Layout({
   useEffect(() => {
     if (secondplayer) {
       setStyle(
-        `flex min-h-screen w-full hidden md:flex flex-col items-center justify-end ${savior.className} select-none bg-black`
+        `flex min-h-screen w-full hidden md:flex flex-col items-center justify-end select-none bg-black`
       );
     } else {
       setStyle(
-        `flex min-h-screen w-full flex flex-col items-center justify-end ${savior.className} select-none bg-black`
+        `flex min-h-screen w-full flex flex-col items-center justify-end select-none bg-black`
       );
     }
   }, [secondplayer]);

@@ -13,7 +13,7 @@ export default function Status({
 }) {
   return (
     <div>
-      <h2 className="text-3xl">{label}</h2>
+      <h2 className="text-md">{label}</h2>
       <div
         className={`bg-gray-200 h-8 w-full rounded-lg border-2 border-gray-500`}
       >
@@ -23,7 +23,7 @@ export default function Status({
         ></div>
       </div>
       <div>
-        <span className="text-2xl">{pct}/100</span>
+        <span className="text-md">{pct}/100</span>
       </div>
     </div>
   );

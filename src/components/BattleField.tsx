@@ -9,7 +9,7 @@ export default function BattleField({ attacker, defender }: Props) {
   return (
     <div>
       <div className="w-full px-6 flex justify-end">{attacker}</div>
-      <div className="w-full px-6">{defender}</div>
+      <div className="w-full px-6 flex justify-start">{defender}</div>
     </div>
   );
 }
