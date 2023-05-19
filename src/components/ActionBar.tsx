@@ -18,16 +18,16 @@ const ActionBar: React.FC<ActionBarProps> = ({
       <div className="w-2/5 flex flex-col gap-1">
         <h2 className="text-md">Ações</h2>
         <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-gray-800 font-bold">
-          <ItemsAcoes icon="👊" tecla={secondplayer ? "ArrowLeft" : "a"}>
+          <ItemsAcoes icon="👊">
             {secondplayer ? "Tecla ⬅️" : "Tecla A"}
           </ItemsAcoes>
-          <ItemsAcoes icon="🛡️" tecla={secondplayer ? "ArrowDown" : "d"}>
+          <ItemsAcoes icon="🛡️">
             {secondplayer ? "Tecla ⬇️" : "Tecla D"}
           </ItemsAcoes>
-          <ItemsAcoes icon="🔥" tecla={secondplayer ? "ArrowRight" : "s"}>
+          <ItemsAcoes icon="🔥">
             {secondplayer ? "Tecla ➡️" : "Tecla S"}
           </ItemsAcoes>
-          <ItemsAcoes icon="🏃" tecla={secondplayer ? "ArrowUp" : "f"}>
+          <ItemsAcoes icon="🏃">
             {secondplayer ? "Tecla ⬆️" : "Tecla F"}
           </ItemsAcoes>
         </ul>
