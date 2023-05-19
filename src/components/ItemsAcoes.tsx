@@ -3,7 +3,6 @@ import React from "react";
 export default function ItemsAcoes({
   children,
   icon,
-  tecla,
 }: {
   children: React.ReactNode;
   icon: React.ReactNode;
