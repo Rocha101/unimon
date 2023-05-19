@@ -12,13 +12,13 @@ export default function Status({
   pct: number;
 }) {
   return (
-    <div>
+    <div className="gap-1 flex flex-col">
       <h2 className="text-md">{label}</h2>
       <div
         className={`bg-gray-200 h-8 w-full rounded-lg border-2 border-gray-500`}
       >
         <div
-          className={`${color} h-full rounded-l-md`}
+          className={`${color} h-full rounded-md`}
           style={{ width: `${pct}%` } as React.CSSProperties}
         ></div>
       </div>

@@ -1,13 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 import BattleField from "@/components/BattleField";
-import ItemsAcoes from "@/components/ItemsAcoes";
 import LayoutBattle from "@/components/LayoutBattle";
-import Status from "@/components/Status";
-import React, { use, useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { PokemonClient } from "pokenode-ts";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import ActionBar from "@/components/ActionBar";
+import { fetchPokemonData } from "@/services/fetchData";
 
 export default function Battle({}) {
   const router = useRouter();
@@ -38,103 +35,149 @@ export default function Battle({}) {
     winner: false,
   });
 
+  const [currentTurn, setCurrentTurn] = useState(1);
+  const [countdown, setCountdown] = useState(10);
+  const [isCountdownActive, setIsCountdownActive] = useState(false);
+
   useEffect(() => {
-    const fetchPokemonData = async () => {
-      if (!id) return;
-      const api = new PokemonClient();
-
-      try {
-        const [attackerData, defenderData] = await Promise.all([
-          api.getPokemonByName(id[0]),
-          api.getPokemonByName(id[1]),
-        ]);
-
-        setAttacker({
-          pokeName: attackerData.name,
-          spriteBack: attackerData.sprites.back_default,
-          spriteFront: attackerData.sprites.front_default,
-        });
-
-        setDefender({
-          pokeName: defenderData.name,
-          spriteFront: defenderData.sprites.front_default,
-          spriteBack: defenderData.sprites.back_default,
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchPokemonData();
+    fetchPokemonData({ id: id, setAttacker, setDefender });
   }, [id]);
 
+  useEffect(() => {
+    if (player1.winner || player2.winner) {
+      setMenu(true);
+    } else {
+      setIsCountdownActive(true);
+    }
+  }, [player1, player2]);
+
+  useEffect(() => {
+    if (isCountdownActive) {
+      const countdownInterval = setInterval(() => {
+        setCountdown((prevCountdown) => prevCountdown - 1);
+      }, 1000);
+
+      if (countdown === 0) {
+        setIsCountdownActive(false);
+        setCurrentTurn((prevTurn) => (prevTurn === 1 ? 2 : 1));
+        setCountdown(3);
+      }
+
+      return () => clearInterval(countdownInterval);
+    }
+  }, [isCountdownActive, countdown]);
+
   function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (
+      isCountdownActive || // Ignore key press if countdown is active
+      (currentTurn === 1 && // Player 1 can only press a, d, s, f
+        (event.key == "a" ||
+          event.key == "d" ||
+          event.key == "s" ||
+          event.key == "f")) ||
+      (currentTurn === 2 && // Player 2 can only press arrow keys
+        (event.key == "ArrowLeft" ||
+          event.key == "ArrowDown" ||
+          event.key == "ArrowRight" ||
+          event.key == "ArrowUp"))
+    ) {
+      return; // Ignore key press if countdown is active or it's not the player's turn
+    }
+
     const { key } = event;
     const updatedPlayer1 = { ...player1 };
     const updatedPlayer2 = { ...player2 };
 
     switch (key) {
-      case "a":
-        if (updatedPlayer1.force <= 0) return;
-        if (updatedPlayer2.life <= 0) return;
-        updatedPlayer2.life -= 10;
+      case "a": // Player 1 attacks
+        if (currentTurn === 2) {
+          if (updatedPlayer1.force <= 9) return;
+          if (updatedPlayer2.life <= 0) return;
+          updatedPlayer1.force -= 10;
+          updatedPlayer2.life -= 10;
+        }
         break;
-      case "d":
-        if (updatedPlayer2.force <= 0) return;
-        if (updatedPlayer1.life <= 0) return;
-        updatedPlayer1.life += 10;
+      case "d": // Player 1 heals
+        if (currentTurn === 2) {
+          if (updatedPlayer1.force == 100) {
+            alert("Player 1 já está com a força cheia!");
+            return;
+          }
+          updatedPlayer1.force += 10;
+        }
         break;
-      case "s":
-        if (updatedPlayer1.force <= 0) return;
-        if (updatedPlayer2.life <= 0) return;
-        updatedPlayer2.life -= 20;
+      case "s": // Player 1 super attacks
+        if (currentTurn === 2) {
+          if (updatedPlayer1.force <= 19) return;
+          if (updatedPlayer2.life <= 0) return;
+          updatedPlayer1.force -= 20;
+          updatedPlayer2.life -= 20;
+        }
         break;
-      case "ArrowUp":
-        alert("Player 2 desistiu!");
-        window.history.back();
+      case "ArrowLeft": // Player 2 attacks
+        if (currentTurn === 1) {
+          if (updatedPlayer2.force <= 9) return;
+          if (updatedPlayer1.life <= 0) return;
+          updatedPlayer2.force -= 10;
+          updatedPlayer1.life -= 10;
+        }
         break;
-      case "KeyF":
-        alert("Player 1 desistiu!");
-        window.history.back();
+      case "ArrowDown": // Player 2 heals
+        if (currentTurn === 1) {
+          if (updatedPlayer2.force == 100) {
+            alert("Player 2 já está com a força cheia!");
+            return;
+          }
+          updatedPlayer2.force += 10;
+        }
         break;
-      case "ArrowLeft":
-        if (updatedPlayer2.force <= 0) return;
-        if (updatedPlayer1.life <= 0) return;
-        updatedPlayer1.life -= 10;
+      case "ArrowRight": // Player 2 super attacks
+        if (currentTurn === 1) {
+          if (updatedPlayer2.force <= 19) return;
+          if (updatedPlayer1.life <= 0) return;
+          updatedPlayer2.force -= 20;
+          updatedPlayer1.life -= 20;
+        }
         break;
-      case "ArrowDown":
-        if (updatedPlayer1.force <= 0) return;
-        if (updatedPlayer2.life <= 0) return;
-        updatedPlayer2.life += 10;
+      case "ArrowUp": // Player 2 gives up
+        if (currentTurn === 1) {
+          alert("Player 2 desistiu!");
+          updatedPlayer1.winner = true;
+          setMenu(true);
+        }
         break;
-      case "ArrowRight":
-        if (updatedPlayer2.force <= 0) return;
-        if (updatedPlayer1.life <= 0) return;
-        updatedPlayer1.life -= 20;
+      case "f": // Player 1 gives up
+        if (currentTurn === 2) {
+          alert("Player 1 desistiu!");
+          updatedPlayer2.winner = true;
+          setMenu(true);
+        }
         break;
       default:
         break;
     }
 
-    if (updatedPlayer2.life <= 0) {
-      alert("Player 1 venceu!");
-      player1.winner = true;
+    if (updatedPlayer2.life <= 0 && updatedPlayer1.life <= 0) {
+      // Both players' life points are <= 0
+      alert("Empate!");
+      updatedPlayer1.winner = true;
+      updatedPlayer2.winner = true;
       setMenu(true);
-    }
-    if (updatedPlayer1.life <= 0) {
+    } else if (updatedPlayer2.life <= 0) {
+      // Player 1 wins
+      alert("Player 1 venceu!");
+      updatedPlayer1.winner = true;
+      setMenu(true);
+    } else if (updatedPlayer1.life <= 0) {
+      // Player 2 wins
       alert("Player 2 venceu!");
-      player2.winner = true;
+      updatedPlayer2.winner = true;
       setMenu(true);
     }
 
     setPlayer1(updatedPlayer1);
     setPlayer2(updatedPlayer2);
   }
-  useEffect(() => {
-    if (player1.winner || player2.winner) {
-      setMenu(true);
-    }
-  }, [player1, player2]);
 
   const handleBack = () => {
     router.back();
@@ -155,13 +198,13 @@ export default function Battle({}) {
           </h2>
           <div className="flex gap-4 justify-between">
             <button
-              className="bg-blue-500 px-4 py-2 rounded-lg text-white font-medium w-full"
+              className="bg-slate-700 px-4 py-2 rounded-lg text-white font-medium w-full"
               onClick={handleBack}
             >
               Voltar
             </button>
             <button
-              className="bg-blue-500 px-4 py-2 rounded-lg text-white font-medium  w-full"
+              className="bg-slate-700 px-4 py-2 rounded-lg text-white font-medium  w-full"
               onClick={handleRestart}
             >
               Recomeçar
@@ -197,11 +240,24 @@ export default function Battle({}) {
         />
         <ActionBar vida={player1.life} forca={player1.force} />
       </LayoutBattle>
-      <div
-        className="
-    w-2 bg-blue-900 h-full
-    "
-      ></div>
+      <div className="w-96 bg-slate-700 h-full text-center font-bold select-none">
+        {isCountdownActive ? (
+          <div className="flex flex-col items-center justify-center h-full">
+            <h1 className="text-3xl text-white">{countdown}</h1>
+            <h2 className="text-xl text-white">Turno {currentTurn}</h2>
+            <h2 className="text-white">
+              (Jogador {currentTurn === 1 ? "1" : "2"})
+            </h2>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full">
+            <h1 className="text-3xl text-white">
+              Vez do Jogador {currentTurn === 1 ? "2" : "1"}
+            </h1>
+          </div>
+        )}
+      </div>
+
       <LayoutBattle secondplayer>
         <BattleField
           attacker={
