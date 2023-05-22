@@ -6,6 +6,8 @@ export default function Listagem({}) {
   const Link =
     "text-gray-300 hover:text-gray-900 text-md bg-slate-800 hover:bg-gray-200 rounded-lg px-2 py-1 my-1 active:bg-gray-300 w-full";
 
+  const [isLoading, setIsLoading] = useState(true);
+
   const [pokemons, setPokemons] = useState<NamedAPIResource[]>([]);
   const [selectedPokemon, setSelectedPokemon] = useState<{
     attacker: string;
@@ -15,6 +17,7 @@ export default function Listagem({}) {
 
   useEffect(() => {
     const fetchPokemons = async () => {
+      setIsLoading(true);
       const api = new PokemonClient();
       try {
         const data = await api.listPokemons(0, 10000);
@@ -22,6 +25,7 @@ export default function Listagem({}) {
       } catch (error) {
         console.error(error);
       }
+      setIsLoading(false);
     };
     fetchPokemons();
   }, []);
@@ -50,6 +54,14 @@ export default function Listagem({}) {
       window.location.href = `/battle/${attacker}/${defender}`;
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-black text-center">
+        <h1 className="text-3xl text-white">Carregando...</h1>
+      </div>
+    );
+  }
 
   return (
     <Layout>

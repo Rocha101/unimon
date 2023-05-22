@@ -9,6 +9,8 @@ import { fetchPokemonData } from "@/services/fetchData";
 export default function Battle({}) {
   const router = useRouter();
   const { slug, id } = router.query;
+  const [isLoading, setIsLoading] = useState(true); // Loading state
+  const [isShaking, setIsShaking] = useState(false); // Shaking state
 
   const [attacker, setAttacker] = useState<{
     pokeName: string;
@@ -40,7 +42,20 @@ export default function Battle({}) {
   const [isCountdownActive, setIsCountdownActive] = useState(false);
 
   useEffect(() => {
-    fetchPokemonData({ id: id, setAttacker, setDefender });
+    const fetchData = async () => {
+      setIsLoading(true);
+
+      try {
+        await fetchPokemonData({ id: id, setAttacker, setDefender });
+      } catch (error) {
+        console.error(error);
+      }
+
+      setIsLoading(false);
+    };
+
+    fetchData();
+    alert("Batalha iniciada! Clique na tela para começar!");
   }, [id]);
 
   useEffect(() => {
@@ -95,6 +110,8 @@ export default function Battle({}) {
           if (updatedPlayer2.life <= 0) return;
           updatedPlayer1.force -= 10;
           updatedPlayer2.life -= 10;
+          setIsShaking(true); // Start shaking animation
+          setTimeout(() => setIsShaking(false), 500); // Stop shaking animation after 0.5s
         }
         break;
       case "d": // Player 1 heals
@@ -104,6 +121,8 @@ export default function Battle({}) {
             return;
           }
           updatedPlayer1.force += 10;
+          setIsShaking(true); // Start shaking animation
+          setTimeout(() => setIsShaking(false), 500); // Stop shaking animation after 0.5s
         }
         break;
       case "s": // Player 1 super attacks
@@ -112,6 +131,8 @@ export default function Battle({}) {
           if (updatedPlayer2.life <= 0) return;
           updatedPlayer1.force -= 20;
           updatedPlayer2.life -= 20;
+          setIsShaking(true); // Start shaking animation
+          setTimeout(() => setIsShaking(false), 500); // Stop shaking animation after 0.5s
         }
         break;
       case "ArrowLeft": // Player 2 attacks
@@ -120,6 +141,8 @@ export default function Battle({}) {
           if (updatedPlayer1.life <= 0) return;
           updatedPlayer2.force -= 10;
           updatedPlayer1.life -= 10;
+          setIsShaking(true); // Start shaking animation
+          setTimeout(() => setIsShaking(false), 500); // Stop shaking animation after 0.5s
         }
         break;
       case "ArrowDown": // Player 2 heals
@@ -129,6 +152,8 @@ export default function Battle({}) {
             return;
           }
           updatedPlayer2.force += 10;
+          setIsShaking(true); // Start shaking animation
+          setTimeout(() => setIsShaking(false), 500); // Stop shaking animation after 0.5s
         }
         break;
       case "ArrowRight": // Player 2 super attacks
@@ -137,6 +162,8 @@ export default function Battle({}) {
           if (updatedPlayer1.life <= 0) return;
           updatedPlayer2.force -= 20;
           updatedPlayer1.life -= 20;
+          setIsShaking(true); // Start shaking animation
+          setTimeout(() => setIsShaking(false), 500); // Stop shaking animation after 0.5s
         }
         break;
       case "ArrowUp": // Player 2 gives up
@@ -190,7 +217,9 @@ export default function Battle({}) {
   const [menu, setMenu] = useState(false);
   if (menu)
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-black text-center">
+      <div
+        className={`flex flex-row items-center justify-center w-full h-screen bg-black`}
+      >
         <div className="bg-gray-300 p-4 rounded-lg flex flex-col justify-between gap-4">
           <h1 className="text-3xl text-black">MENU</h1>
           <h2 className="text-xl text-black">
@@ -213,6 +242,14 @@ export default function Battle({}) {
         </div>
       </div>
     );
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-black text-center">
+        <h1 className="text-3xl text-white">Carregando...</h1>
+      </div>
+    );
+  }
   return (
     <div
       tabIndex={0}
