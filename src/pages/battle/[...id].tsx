@@ -67,6 +67,10 @@ export default function Battle({}) {
     }
   }, [isCountdownActive, countdown]);
 
+  React.useEffect(() => {
+    alert("Clique na tela desbloquear o teclado!");
+  }, []);
+
   function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     if (
       isCountdownActive || // Ignore key press if countdown is active
@@ -213,6 +217,7 @@ export default function Battle({}) {
         </div>
       </div>
     );
+
   return (
     <div
       tabIndex={0}
