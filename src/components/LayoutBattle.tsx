@@ -16,11 +16,11 @@ export default function Layout({
   useEffect(() => {
     if (secondplayer) {
       setStyle(
-        `flex min-h-screen w-full hidden md:flex flex-col items-center justify-end select-none bg-black`
+        `flex min-h-screen bg-gray-700 border-4 border-gray-800  w-full hidden md:flex flex-col items-center justify-end select-none bg-black`
       );
     } else {
       setStyle(
-        `flex min-h-screen w-full flex flex-col items-center justify-end select-none bg-black`
+        `flex min-h-screen bg-gray-700 border-4 border-gray-800 w-full flex flex-col items-center justify-end select-none bg-black`
       );
     }
   }, [secondplayer]);

@@ -9,7 +9,7 @@ export default function ItemsAcoes({
 }) {
   return (
     <button
-      className={`text-md px-2 py-1 bg-gray-400 cursor-default rounded-lg flex flex-row gap-3`}
+      className={`text-xl px-2 py-1 bg-blue-900 text-white cursor-default rounded-lg flex flex-row gap-3 h-24 justify-center items-center`}
     >
       {icon}
       <span className="truncate flex justify-between items-center gap-6">
