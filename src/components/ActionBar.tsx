@@ -22,7 +22,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
           <h3 className="py-1  px-2 bg-gray-900 border font-bold flex items-center justify-center rounded-lg w-24">
             {secondplayer ? "Jogador 2" : "Jogador 1"}
           </h3>
-          <h3 className="py-1 px-4 bg-gray-900 border font-bold flex items-center justify-center rounded-lg w-32">
+          <h3 className="py-1 px-2 bg-gray-900 border font-bold flex items-center justify-center rounded-lg w-24">
             {pokemon?.toUpperCase() || "Nenhum"}
           </h3>
         </div>
