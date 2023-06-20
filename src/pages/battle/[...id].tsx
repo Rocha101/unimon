@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import ActionBar from "@/components/ActionBar";
 import { fetchPokemonData } from "@/services/fetchData";
+import Link from "next/link";
 
 export default function Battle({}) {
   const router = useRouter();
@@ -312,12 +313,52 @@ export default function Battle({}) {
             <h2 className="text-white">
               (Jogador {currentTurn === 1 ? "1" : "2"})
             </h2>
+            <Link
+              className="text-white mt-4 px-2 bg-gray-600 rounded-lg flex items-center gap-1"
+              href="/"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-3 h-3"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"
+                />
+              </svg>
+              Sair
+            </Link>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-full">
             <h1 className="text-3xl text-white">
               Vez do Jogador {currentTurn === 1 ? "2" : "1"}
             </h1>
+            <Link
+              className="text-white mt-4 px-2 bg-gray-600 rounded-lg flex items-center gap-1"
+              href="/"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-3 h-3"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"
+                />
+              </svg>
+              Sair
+            </Link>
           </div>
         )}
       </div>
